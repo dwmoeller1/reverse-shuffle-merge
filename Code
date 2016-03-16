@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+class Solution {
+    static void Main(String[] args) {
+        /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Solution */
+        
+        string input = Console.ReadLine();
+        int[] charFreq = new int[26];
+        string answer ="";
+        List<char> buffer = new List<char>();
+        string bufferTemp = "";
+        
+        foreach(char c in input)
+            charFreq[(int)c-(int)'a']++;
+        
+        int[] charLeft = charFreq.Clone() as int[];
+        
+        for(int i = 0;i<charFreq.Length;i++)
+            charFreq[i] /= 2;
+            
+        for(int i=input.Length-1;i>=0;i--)
+            {
+            char c = input[i];
+            char smallest = (char)(Array.FindIndex(charFreq,element => element>0)+(int)'a');
+            int cIndex = (int)c-(int)'a';
+            //Console.Error.WriteLine(c+" "+charLeft[cIndex]+" "+charFreq[cIndex]);
+            if(c==smallest)
+                {         
+                //Console.Error.WriteLine("c="+c);
+                answer+=c;
+                charFreq[cIndex]--;
+                //reset buffer
+                buffer.Clear();
+            }            
+            else if(charLeft[cIndex]==charFreq[cIndex])
+                {                
+                while(true)
+                    {       
+                    if(buffer.Count==0)
+                        {
+                        foreach(char letter in bufferTemp)
+                            buffer.Add(letter);
+                        bufferTemp="";
+                        break;
+                    }
+                    
+                    char ch = buffer[0];
+                    //Console.Error.WriteLine("buffer="+string.Join("",buffer.ToArray()));
+                    
+                    if(charFreq[(int)buffer[0]-(int)'a'] ==0)
+                        buffer.RemoveAt(0);                        
+                    else if(buffer[0]==buffer.Min(x => (int)x) && ch<c)
+                        {                
+                        //Console.Error.WriteLine(buffer[0]);
+                        answer+=buffer[0];
+                        charFreq[(int)buffer[0]-(int)'a']--;
+                        
+                        buffer.RemoveAt(0);
+                        if(buffer.Count> 0 && charFreq[(int)buffer[0]-(int)'a']==0)
+                            buffer.RemoveAll(item => item==ch);                                                  
+                    }
+                    else if(buffer[0]==buffer.Min(x => (int)x) && ch==c && buffer.Count>0)
+                        {
+                        bufferTemp +=ch;
+                        buffer.RemoveAt(0);
+                    }
+                    else
+                        buffer.RemoveAt(0);                
+                    
+                }                
+                
+                answer+=c;
+                //Console.Error.WriteLine("answer="+answer);
+                charFreq[cIndex]--;                
+            }
+            else if(c>smallest)
+                {
+                buffer.Add(c);
+            }
+            
+            
+            charLeft[cIndex]--;
+            
+            if(answer.Length == input.Length/2)
+                break;
+        }
+        
+        Console.WriteLine(answer);
+    }
+}
